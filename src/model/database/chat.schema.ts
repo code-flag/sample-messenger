@@ -19,7 +19,7 @@ const ChatRoomSchema = new Schema({
     conversationId: {type: Schema.Types.ObjectId, required: true, ref: "ChatRooms"},
     isActive: {type: Boolean, required: false, default: true}
 });
-
+ 
 const ConversationsSchema = new Schema({
     roomId: {type: String, required: true},
     conversation: {
