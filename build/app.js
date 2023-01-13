@@ -38,14 +38,6 @@ dotenv_1.default.config();
 const socket_io_1 = require("socket.io");
 const http_1 = require("http");
 const options_1 = require("./config/options");
-const staff_event_1 = require("./model/staff.event");
-const resident_event_1 = require("./model/resident.event");
-// const http = require("http");
-// const riderController = require("./src/controllers/rider/rider-controller");
-// const driverController = require("./src/controllers/driver/driver-socket");
-// import { NotificationManager } from "./routes/app-notification/library/library.notification-manager";
-/**_________________________Require Endpoints__________________________ */
-// const home= require("./src/controllers/client-controller/routes.home");
 const routes_resident_1 = __importDefault(require("./controller/client-controller/routes.resident"));
 const routes_service_1 = __importDefault(require("./controller/client-controller/routes.service"));
 const routes_staff_1 = __importDefault(require("./controller/client-controller/routes.staff"));
@@ -62,57 +54,13 @@ const io = new socket_io_1.Server(server, Object.assign({}, options_1.serverOpti
 const PORT = process.env.PORT || 3200;
 const host = process.env.HOST || "http://localhost";
 /**
- * An instance notification manager.
- * Create an instance of notification storage manager
- */
-// const NotificationManagerInstance =  NotificationManager.getInstance(); 
-// NotificationManagerInstance.loadNotificationFromDB();
-/**
- * Handles all user socket events
- */
-const staffSocket = io.of("/staffNsp");
-/**
- * Handles all Driver socket events
- */
-const serviceProviderSocket = io.of("/service-provider-nsp");
-/**
  * Handles all user socket events
  */
 const chatSocket = io.of("/chat");
-/**
- * Handles all Driver socket events
- */
-const residentSocket = io.of("/residentNsp");
-// driver.use((socket, next) => {
-// 	// let handshake = socket.handshake;
-// 	// ensure the user has sufficient rights
-// 	next();
-//   });
-staffSocket.on("connection", (socket) => {
-    socket.emit('connected', { data: { connectionId: socket.id } });
-    let handshake = socket.handshake;
-    const qrData = JSON.parse(JSON.stringify(handshake.query));
-    console.log('Staff connected successfully: Handshake', qrData.userId, qrData.userType, qrData.userName);
-    (0, staff_event_1.staffController)(staffSocket, socket, qrData, residentSocket, '');
-});
 chatSocket.on("connection", (socket) => {
     console.log(" User connected");
     socket.emit('connected', { data: { connectionId: socket.id } });
     (0, create_chat_1.chatController)(chatSocket, socket);
-});
-residentSocket.on("connection", (socket) => {
-    socket.emit('connected', { data: { connectionId: socket.id } });
-    let handshake = socket.handshake;
-    const qrData = JSON.parse(JSON.stringify(handshake.query));
-    console.log('Resident connected successfully: Handshake', qrData.userId, qrData.senderRole, qrData.userName);
-    (0, resident_event_1.residentController)(residentSocket, socket, qrData, staffSocket, '');
-});
-serviceProviderSocket.on("connection", (socket) => {
-    socket.emit('connected', { data: { connectionId: socket.id } });
-    let handshake = socket.handshake;
-    const qrData = JSON.parse(JSON.stringify(handshake.query));
-    console.log('Provider connected successfully: Handshake', qrData.userId, qrData.userType, qrData.userName);
-    // riderController(rider, socket, driver, handshake.query?.userId);
 });
 /**_________________________________ Middleware ________________________________ */
 // header preflight configuration to prevent cors error
