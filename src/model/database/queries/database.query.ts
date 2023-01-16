@@ -1,10 +1,10 @@
-import { chatRooms } from "../chat.schema";
-import { conversations } from "../chat.schema";
+import { chatRooms } from "../schemas/chat.schema";
+import { conversations } from "../schemas/chat.schema";
 
 
 export const getUserChatList = async (userId: string | number, roomId: string, messageObj: any) => {
     
-    const chatInfo: any = chatRooms.findOne({$or:[{userOneId: userId}, {userTwoId: userId}]});
+    const chatInfo: any = await chatRooms.findOne({$or:[{userOneId: userId}, {userTwoId: userId}]});
 
     if (chatInfo) {
       
@@ -13,29 +13,33 @@ export const getUserChatList = async (userId: string | number, roomId: string, m
     return chatInfo;
 }
 
-export const createChat = (userId: string | number, roomId: string, messageObj: any) => {
-    const chatInfo = chatRooms.findOne({$or:[{userOneId: userId}, {userTwoId: userId}]});
+export const createChat = async (chatData: any) => {
+    const chatInfo = await chatRooms.create(chatData);
+    return chatInfo;
+}
+export const getChats = async (roomId: string) => {
+    const chatInfo: any = await chatRooms.findOne({roomId: roomId}).populate('conversations');
     return chatInfo;
 }
 
-export const createConversation = ( roomId: string, messageObj: any) => {
-    const chatInfo = conversations.create({roomId: roomId, conversation: messageObj});
+export const createConversation = async (conversationData:any) => {
+    const chatInfo = await conversations.create(conversationData);
     return chatInfo;
 }
 
-export const getConversation = (userId: string | number, roomId: string, messageObj: any) => {
-    const chatInfo = chatRooms.findOne({$or:[{userOneId: userId}, {userTwoId: userId}]});
+export const getConversation = async (roomId: string) => {
+    const chatInfo: any = await conversations.findOne({roomId: roomId});
     return chatInfo;
 }
 
-export const updateConversation = (roomId: string, messageObj: any) => {
-    const conversation: any = conversations.findOne({roomId: roomId});
+export const updateConversation = async (data:any) => {
+    const conversation: any = await conversations.findOne({roomId: data.roomId});
     if (conversation) {
         // update the conversation
-        conversations.findOneAndUpdate(
-            { roomId: roomId},
-            { $set: messageObj },
-            { new: true });
+        return await conversations.updateOne(
+                { roomId: data.roomId},
+                { $addToSet: { conversation: data.conversation[0] } }
+              );
     }
     else {
         return false;

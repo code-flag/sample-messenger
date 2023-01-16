@@ -157,10 +157,8 @@ $("#send-msg").click(function(){
   $("#chat #last-line").before(userMsg);
 
   residentConn.emit('send-new-message', {
-      name: "Joy",
-      userName: 'StudentJOy',
-      message: msg, 
-      userId: 20
+      message: msg,
+      messageType: "text",
     });
 });
  
@@ -173,7 +171,7 @@ $("#send-msg").click(function(){
            productName: "Gate-house",
             productId: "87bhrwigds78w",
             accessId: 'dkls96s5rsiu792wh0',
-            senderId: 'sg34g545efs2w',
+            senderId: 'sg34g545efs2m',
             senderName: 'Jame Bond',
             senderAvatar: 'avatar',
             senderRole: "user",
@@ -189,6 +187,7 @@ $("#send-msg").click(function(){
         const { data } = socketData;
         let connectionId = data && data.connectionId ? data.connectionId : null;
         console.log('socket connected', connectionId);
+        console.log('chats', data.chats);
         // Expose connection Id for test checking
   
         // Listen to Driver events
@@ -232,7 +231,7 @@ $("#send-msg").click(function(){
   $("#chat #last-line").before(userMsg);
     }); 
 
-    socket.on('resident-message', (data) => {
+    socket.on('send-new-message-done', (data) => {
       console.log('response: for resident 2 chat', data);
     });  
   }

@@ -9,39 +9,48 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateConversation = exports.getConversation = exports.createConversation = exports.createChat = exports.getUserChatList = void 0;
-const chat_schema_1 = require("../chat.schema");
-const chat_schema_2 = require("../chat.schema");
+exports.updateConversation = exports.getConversation = exports.createConversation = exports.getChats = exports.createChat = exports.getUserChatList = void 0;
+const chat_schema_1 = require("../schemas/chat.schema");
+const chat_schema_2 = require("../schemas/chat.schema");
 const getUserChatList = (userId, roomId, messageObj) => __awaiter(void 0, void 0, void 0, function* () {
-    const chatInfo = chat_schema_1.chatRooms.findOne({ $or: [{ userOneId: userId }, { userTwoId: userId }] });
+    const chatInfo = yield chat_schema_1.chatRooms.findOne({ $or: [{ userOneId: userId }, { userTwoId: userId }] });
     if (chatInfo) {
     }
     return chatInfo;
 });
 exports.getUserChatList = getUserChatList;
-const createChat = (userId, roomId, messageObj) => {
-    const chatInfo = chat_schema_1.chatRooms.findOne({ $or: [{ userOneId: userId }, { userTwoId: userId }] });
+const createChat = (chatData) => __awaiter(void 0, void 0, void 0, function* () {
+    const chatInfo = yield chat_schema_1.chatRooms.create(chatData);
     return chatInfo;
-};
+});
 exports.createChat = createChat;
-const createConversation = (roomId, messageObj) => {
-    const chatInfo = chat_schema_2.conversations.create({ roomId: roomId, conversation: messageObj });
+const getChats = (roomId) => __awaiter(void 0, void 0, void 0, function* () {
+    const chatInfo = yield chat_schema_1.chatRooms.findOne({ roomId: roomId }).populate('conversations');
     return chatInfo;
-};
+});
+exports.getChats = getChats;
+const createConversation = (conversationData) => __awaiter(void 0, void 0, void 0, function* () {
+    const chatInfo = yield chat_schema_2.conversations.create(conversationData);
+    return chatInfo;
+});
 exports.createConversation = createConversation;
-const getConversation = (userId, roomId, messageObj) => {
-    const chatInfo = chat_schema_1.chatRooms.findOne({ $or: [{ userOneId: userId }, { userTwoId: userId }] });
+const getConversation = (roomId) => __awaiter(void 0, void 0, void 0, function* () {
+    const chatInfo = yield chat_schema_2.conversations.findOne({ roomId: roomId });
     return chatInfo;
-};
+});
 exports.getConversation = getConversation;
-const updateConversation = (roomId, messageObj) => {
-    const conversation = chat_schema_2.conversations.findOne({ roomId: roomId });
+const updateConversation = (data) => __awaiter(void 0, void 0, void 0, function* () {
+    const conversation = yield chat_schema_2.conversations.findOne({ roomId: data.roomId });
     if (conversation) {
         // update the conversation
-        chat_schema_2.conversations.findOneAndUpdate({ roomId: roomId }, { $set: messageObj }, { new: true });
+        // conversations.findOneAndUpdate(
+        //     { roomId: roomId},
+        //     { $set: messageObj },
+        //     { new: true });
+        return yield chat_schema_2.conversations.updateOne({ roomId: data.roomId }, { $addToSet: { conversation: data.conversation[0] } });
     }
     else {
         return false;
     }
-};
+});
 exports.updateConversation = updateConversation;

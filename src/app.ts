@@ -19,6 +19,7 @@ import resident from './controller/client-controller/routes.resident';
 import service from './controller/client-controller/routes.service';
 import staff from './controller/client-controller/routes.staff';
 import { chatController } from './controller/create-chat';
+import { DBConnection } from './config/connection';
 
 var app = express();
 app.use(express.json({ limit: "50mb" }));
@@ -37,14 +38,16 @@ const io = new Server(server, {
 const PORT: number | string = process.env.PORT || 3200;
 const host: string = process.env.HOST || "http://localhost";
 
+/** ________________________Database connection_________________________ */
+DBConnection();
+
+
 /**
  * Handles all user socket events
  */
 const chatSocket = io.of("/chat");
 
 chatSocket.on("connection", (socket: any) => {
-  console.log(" User connected");
-	socket.emit('connected', {data: {connectionId: socket.id}});
 	 chatController(chatSocket, socket);
 });
 

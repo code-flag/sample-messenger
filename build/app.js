@@ -42,6 +42,7 @@ const routes_resident_1 = __importDefault(require("./controller/client-controlle
 const routes_service_1 = __importDefault(require("./controller/client-controller/routes.service"));
 const routes_staff_1 = __importDefault(require("./controller/client-controller/routes.staff"));
 const create_chat_1 = require("./controller/create-chat");
+const connection_1 = require("./config/connection");
 var app = (0, express_1.default)();
 app.use(express_1.default.json({ limit: "50mb" }));
 // instatiating template engine
@@ -53,13 +54,13 @@ const server = (0, http_1.createServer)(app);
 const io = new socket_io_1.Server(server, Object.assign({}, options_1.serverOptions));
 const PORT = process.env.PORT || 3200;
 const host = process.env.HOST || "http://localhost";
+/** ________________________Database connection_________________________ */
+(0, connection_1.DBConnection)();
 /**
  * Handles all user socket events
  */
 const chatSocket = io.of("/chat");
 chatSocket.on("connection", (socket) => {
-    console.log(" User connected");
-    socket.emit('connected', { data: { connectionId: socket.id } });
     (0, create_chat_1.chatController)(chatSocket, socket);
 });
 /**_________________________________ Middleware ________________________________ */

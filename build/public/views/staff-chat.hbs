@@ -114,10 +114,8 @@ $("#send-msg").click(function(){
   $("#chat #last-line").before(userMsg);
 
   staffConn.emit('send-new-message', {
-      name: "Staff",
-      userName: 'Staff01',
-      message: msg, 
-      userId: 2
+      message: msg,
+      messageType: "text",
     });
 });
  
@@ -134,7 +132,7 @@ $("#send-msg").click(function(){
             senderName: "Mark Mosh",
             senderAvatar: 'avatar',
             senderRole: "staff",
-            receiverId: 'sg34g545efs2w', 
+            receiverId: 'sg34g545efs2m', 
             receiverName: 'Jame Bond', 
             receiverAvatar: "avatar",
             receiverRole: "user",
@@ -146,6 +144,7 @@ $("#send-msg").click(function(){
         const { data } = socketData;
         let connectionId = data && data.connectionId ? data.connectionId : null;
         console.log('socket connected', connectionId);
+        console.log('chats', data.chats);
         // Expose connection Id for test checking
   
         // Listen to Driver events
