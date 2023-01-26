@@ -22,7 +22,7 @@ const chatData = (roomID: string, qrData: any, conversationId: string) => {
         conversations: conversationId,
         isActive: true
     }
-    console.log('User connected successfully: Handshake data', data);
+    // console.log('User connected successfully: Handshake data', data);
     return data;
 }
 
@@ -54,16 +54,16 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
     const roomId: string = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.receiverId + "_" + qrData.senderId : qrData.senderId + "_" + qrData.receiverId;
 
     const convData: any = await getChats(roomId);
-    console.log('Old conversation', convData);
+    // console.log('Old conversation', convData);
     if (!convData) {
         const msgObj: any = conversationData(roomId, { message: 'chat initiated', messageType: 'text' }, qrData.senderId);
-        console.log('conversation data', msgObj);
+        // console.log('conversation data', msgObj);
         const conv: any = await createConversation(msgObj);
         if (conv) {
             await createChat(chatData(roomId, qrData, conv._id));
         }
         else {
-            console.log('conv', conv);
+            // console.log('conv', conv);
             return conv;
         }
     }
@@ -74,7 +74,7 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
 
     socket.on("disconnecting", (data) => {
         // socket.emit('ride-request-available', setMessage({}, 'resident: you are now connected', 'r-1', true));
-        console.log(qrData.senderName + " disconnecting");
+        // console.log(qrData.senderName + " disconnecting");
     });
 
     /** add user to a specific room */
@@ -83,21 +83,21 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
 
     /** event to recieve sent message */
     socket.on("send-new-message", async (data) => {
-        console.log('send-new-message', data);
+        // console.log('send-new-message', data);
         /**  check database if this room id is existing
          * if found update the conversation
          * else save the query data and create the conversation
          */
         const msgObj: any = conversationData(roomId, { message: data.message, messageType: data.messageType }, qrData.senderId);
-        console.log('new message data', msgObj, ": Db res", await updateConversation(msgObj));
+        // console.log('new message data', msgObj, ": Db res", await updateConversation(msgObj));
 
         socket.to(roomId).emit('receive-new-message', { message: data.message, messageType: data.messageType, error: false });
-        socket.emit('send-new-message-done', { message: 'message sent', data: data, error: false });
+        // socket.emit('send-new-message-done', { message: 'message sent', data: data, error: false });
         
     });
 
     socket.on("get-messages", async (data) => {
-        console.log('get-messages', data);
+        // console.log('get-messages', data);
         const allMsg: any = await getConversation(roomId);
         // retrieve message from database
         socket.emit('get-messages-done', { message: 'all messages retrieved', data: allMsg, error: false });
