@@ -1,7 +1,7 @@
 /**
  * This file contain all the methods needs to create a chat for a user
  */
-import { createChat, createConversation, getChats, getConversation, updateConversation } from "../model/database/queries/database.query";
+import { createChat, createConversation, getAdminChats, getChats, getChatsBYRoomId, getConversation, updateConversation } from "../model/database/queries/database.query";
 import { Namespace, Socket } from "socket.io";
 
 
@@ -16,23 +16,26 @@ const chatData = (roomID: string, qrData: any, conversationId: string) => {
         userTwoName: qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.senderName : qrData.receiverName,
         userOneAvatar: qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.receiverAvatar : qrData.senderAvatar,
         userTwoAvatar: qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.senderAvatar : qrData.receiverAvatar,
-        productId: qrData.productId, // gate-house access key
-        accessId: qrData.accessId, // estate id
+        productId: qrData?.productId, // gate-house access key
+        accessId: qrData?.accessId, // estate id
         productName: qrData.productName, // gate-house
         conversations: conversationId,
+        requestId: qrData?.requestId,
+        useRequestId: qrData?.useRequestId,
         isActive: true
     }
     // console.log('User connected successfully: Handshake data', data);
     return data;
 }
 
-const conversationData = (roomId: string, msgData: any, senderId: any) => {
+const conversationData = (roomId: string, msgData: any, senderId: any, senderName: any) => {
     const data = {
         roomId: roomId,
         conversation: [{
             message: msgData.message,
             messageType: msgData.messageType,
             senderId: senderId,
+            senderName: senderName,
             timeCreated: new Date().toISOString()
         }]
     }
@@ -51,12 +54,30 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
     const qrData = JSON.parse(JSON.stringify(handshake.query));
 
     const connectionId = socket.id;
-    const roomId: string = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.receiverId + "_" + qrData.senderId : qrData.senderId + "_" + qrData.receiverId;
+    let roomId: string;
 
-    const convData: any = await getChats(roomId);
+    if (qrData?.useRequestId && qrData?.requestId && qrData?.useRequestId === true) {
+        roomId = qrData.requestId;
+    }
+    else {
+        roomId = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.receiverId + "_" + qrData.senderId : qrData.senderId + "_" + qrData.receiverId;
+   
+    }
+    // this is used to determine wether to fetch a single chat or all chat if its not a user 
+    const fetchType: boolean =  qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? false : true;
+    
+    /** holds conversation data or db response */
+    let convData: any;
+    if (fetchType) {
+        convData = await getAdminChats(qrData.userOneId);
+    }
+    else {
+        convData = qrData?.useRequestId === true ? await getChats(qrData.requestId) : await getChatsBYRoomId(roomId);
+    }
+
     // console.log('Old conversation', convData);
     if (!convData) {
-        const msgObj: any = conversationData(roomId, { message: 'chat initiated', messageType: 'text' }, qrData.senderId);
+        const msgObj: any = conversationData(roomId, { message: 'chat initiated', messageType: 'text' }, qrData.senderId, "");
         // console.log('conversation data', msgObj);
         const conv: any = await createConversation(msgObj);
         if (conv) {
@@ -88,7 +109,7 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
          * if found update the conversation
          * else save the query data and create the conversation
          */
-        const msgObj: any = conversationData(roomId, { message: data.message, messageType: data.messageType }, qrData.senderId);
+        const msgObj: any = conversationData(roomId, { message: data.message, messageType: data.messageType }, qrData.senderId, data.senderName);
         // console.log('new message data', msgObj, ": Db res", await updateConversation(msgObj));
 
         socket.to(roomId).emit('receive-new-message', { message: data.message, messageType: data.messageType, error: false });

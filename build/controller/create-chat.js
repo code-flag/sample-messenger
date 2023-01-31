@@ -25,22 +25,25 @@ const chatData = (roomID, qrData, conversationId) => {
         userTwoName: qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.senderName : qrData.receiverName,
         userOneAvatar: qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.receiverAvatar : qrData.senderAvatar,
         userTwoAvatar: qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.senderAvatar : qrData.receiverAvatar,
-        productId: qrData.productId,
-        accessId: qrData.accessId,
+        productId: qrData === null || qrData === void 0 ? void 0 : qrData.productId,
+        accessId: qrData === null || qrData === void 0 ? void 0 : qrData.accessId,
         productName: qrData.productName,
         conversations: conversationId,
+        requestId: qrData === null || qrData === void 0 ? void 0 : qrData.requestId,
+        useRequestId: qrData === null || qrData === void 0 ? void 0 : qrData.useRequestId,
         isActive: true
     };
-    console.log('User connected successfully: Handshake data', data);
+    // console.log('User connected successfully: Handshake data', data);
     return data;
 };
-const conversationData = (roomId, msgData, senderId) => {
+const conversationData = (roomId, msgData, senderId, senderName) => {
     const data = {
         roomId: roomId,
         conversation: [{
                 message: msgData.message,
                 messageType: msgData.messageType,
                 senderId: senderId,
+                senderName: senderName,
                 timeCreated: new Date().toISOString()
             }]
     };
@@ -55,18 +58,33 @@ const chatController = (chatNsp, socket) => __awaiter(void 0, void 0, void 0, fu
     let handshake = socket.handshake;
     const qrData = JSON.parse(JSON.stringify(handshake.query));
     const connectionId = socket.id;
-    const roomId = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.receiverId + "_" + qrData.senderId : qrData.senderId + "_" + qrData.receiverId;
-    const convData = yield (0, database_query_1.getChats)(roomId);
-    console.log('Old conversation', convData);
+    let roomId;
+    if ((qrData === null || qrData === void 0 ? void 0 : qrData.useRequestId) && (qrData === null || qrData === void 0 ? void 0 : qrData.requestId) && (qrData === null || qrData === void 0 ? void 0 : qrData.useRequestId) === true) {
+        roomId = qrData.requestId;
+    }
+    else {
+        roomId = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.receiverId + "_" + qrData.senderId : qrData.senderId + "_" + qrData.receiverId;
+    }
+    // this is used to determine wether to fetch a single chat or all chat if its not a user 
+    const fetchType = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? false : true;
+    /** holds conversation data or db response */
+    let convData;
+    if (fetchType) {
+        convData = yield (0, database_query_1.getAdminChats)(qrData.userOneId);
+    }
+    else {
+        convData = (qrData === null || qrData === void 0 ? void 0 : qrData.useRequestId) === true ? yield (0, database_query_1.getChats)(qrData.requestId) : yield (0, database_query_1.getChatsBYRoomId)(roomId);
+    }
+    // console.log('Old conversation', convData);
     if (!convData) {
-        const msgObj = conversationData(roomId, { message: 'chat initiated', messageType: 'text' }, qrData.senderId);
-        console.log('conversation data', msgObj);
+        const msgObj = conversationData(roomId, { message: 'chat initiated', messageType: 'text' }, qrData.senderId, "");
+        // console.log('conversation data', msgObj);
         const conv = yield (0, database_query_1.createConversation)(msgObj);
         if (conv) {
             yield (0, database_query_1.createChat)(chatData(roomId, qrData, conv._id));
         }
         else {
-            console.log('conv', conv);
+            // console.log('conv', conv);
             return conv;
         }
     }
@@ -76,27 +94,28 @@ const chatController = (chatNsp, socket) => __awaiter(void 0, void 0, void 0, fu
     }
     socket.on("disconnecting", (data) => {
         // socket.emit('ride-request-available', setMessage({}, 'resident: you are now connected', 'r-1', true));
-        console.log(qrData.senderName + " disconnecting");
+        // console.log(qrData.senderName + " disconnecting");
     });
     /** add user to a specific room */
     socket.join(roomId);
     console.log("resident added back room: ", socket.rooms);
     /** event to recieve sent message */
     socket.on("send-new-message", (data) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log('send-new-message', data);
+        // console.log('send-new-message', data);
         /**  check database if this room id is existing
          * if found update the conversation
          * else save the query data and create the conversation
          */
-        const msgObj = conversationData(roomId, { message: data.message, messageType: data.messageType }, qrData.senderId);
-        console.log('new message data', msgObj, ": Db res", yield (0, database_query_1.updateConversation)(msgObj));
+        const msgObj = conversationData(roomId, { message: data.message, messageType: data.messageType }, qrData.senderId, data.senderName);
+        // console.log('new message data', msgObj, ": Db res", await updateConversation(msgObj));
         socket.to(roomId).emit('receive-new-message', { message: data.message, messageType: data.messageType, error: false });
-        socket.emit('send-new-message-done', { message: 'message sent', data: data, error: false });
+        // socket.emit('send-new-message-done', { message: 'message sent', data: data, error: false });
     }));
-    socket.on("get-messages", (data) => {
-        console.log('get-messages', data);
+    socket.on("get-messages", (data) => __awaiter(void 0, void 0, void 0, function* () {
+        // console.log('get-messages', data);
+        const allMsg = yield (0, database_query_1.getConversation)(roomId);
         // retrieve message from database
-        socket.emit('get-messages', { message: 'request is been process', data: data, error: false });
-    });
+        socket.emit('get-messages-done', { message: 'all messages retrieved', data: allMsg, error: false });
+    }));
 });
 exports.chatController = chatController;

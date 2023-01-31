@@ -17,8 +17,18 @@ export const createChat = async (chatData: any) => {
     const chatInfo = await chatRooms.create(chatData);
     return chatInfo;
 }
-export const getChats = async (roomId: string) => {
+export const getChatsBYRoomId = async (roomId: string) => {
     const chatInfo: any = await chatRooms.findOne({roomId: roomId}).populate('conversations');
+    return chatInfo;
+}
+
+export const getChats = async (requestId: string) => {
+    const chatInfo: any = await chatRooms.findOne({requestId: requestId}).populate('conversations');
+    return chatInfo;
+}
+
+export const getAdminChats = async (adminId: string) => {
+    const chatInfo: any = await chatRooms.findOne({userOneId: adminId}).populate('conversations');
     return chatInfo;
 }
 
