@@ -89,16 +89,16 @@
   function driverInit(userId, userType, userName = 'John Mark'){
     console.log('socket init')
       // Initiates a Driver socket
-      const residentConn = io(`localhost:3200/residentNsp`, {
+      const residentConn = io(`localhost:3200/notification`, {
         transports: ["websocket", "polling"],
-        query: { userId: userId, userType: userType, userName: userName },
+        query: { requestId: "john1"},
       });
   
       // Driver Events
       residentConn.on("connected", (socketData) => {
         const { data } = socketData;
         let connectionId = data && data.connectionId ? data.connectionId : null;
-        console.log('am connected', connectionId);
+        console.log('am connected', socketData);
         // Expose connection Id for test checking
   
         // Listen to Driver events
@@ -108,6 +108,9 @@
   
       residentConn.on("error", (data) => {
         // Expose error for test checking
+      });
+      residentConn.on("subscribe-new-notification", (data) => {
+        console.log('new notification', data);
       });
     };
 

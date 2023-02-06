@@ -1,5 +1,6 @@
 import { chatRooms } from "../schemas/chat.schema";
 import { conversations } from "../schemas/chat.schema";
+import { notification } from "../schemas/notification";
 
 
 export const getUserChatList = async (userId: string | number, roomId: string, messageObj: any) => {
@@ -49,6 +50,30 @@ export const updateConversation = async (data:any) => {
         return await conversations.updateOne(
                 { roomId: data.roomId},
                 { $addToSet: { conversation: data.conversation[0] } }
+              );
+    }
+    else {
+        return false;
+    }
+}
+
+export const createNotification = async (NotificationData: any) => {
+    const NotificationInfo = await notification.create(NotificationData);
+    return NotificationInfo;
+}
+export const getNotifications = async (Id: string) => {
+    const notificationData: any = await notification.findOne({requestId: Id});
+    return notificationData;
+}
+
+export const updateNotification = async (requestId: string, notificationId: string) => {
+    const notificationRes: any = await notification.findOne({requestId:requestId, notificationId: notificationId});
+    if (notificationRes) {
+        // update the conversation
+        return await notification.updateOne(
+            {requestId: requestId, notificationId: notificationId},
+                { $set: { isRead: true} },
+                {$new: true}
               );
     }
     else {

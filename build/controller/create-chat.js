@@ -107,9 +107,10 @@ const chatController = (chatNsp, socket) => __awaiter(void 0, void 0, void 0, fu
          * else save the query data and create the conversation
          */
         const msgObj = conversationData(roomId, { message: data.message, messageType: data.messageType }, qrData.senderId, data.senderName);
-        // console.log('new message data', msgObj, ": Db res", await updateConversation(msgObj));
+        yield (0, database_query_1.updateConversation)(msgObj);
+        // console.log('new message data', msgObj, ": Db res", );
         socket.to(roomId).emit('receive-new-message', { message: data.message, messageType: data.messageType, error: false });
-        // socket.emit('send-new-message-done', { message: 'message sent', data: data, error: false });
+        socket.emit('send-new-message-done', { data: [], message: 'message sent', error: false });
     }));
     socket.on("get-messages", (data) => __awaiter(void 0, void 0, void 0, function* () {
         // console.log('get-messages', data);

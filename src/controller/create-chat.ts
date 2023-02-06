@@ -50,10 +50,13 @@ const conversationData = (roomId: string, msgData: any, senderId: any, senderNam
  */
 export const chatController = async (chatNsp: Namespace, socket: Socket) => {
 
+    /** this is used to get connection query params */
     let handshake = socket.handshake;
     const qrData = JSON.parse(JSON.stringify(handshake.query));
-
+    /** user connection Id */
     const connectionId = socket.id;
+
+    /** this used to create a unique conversation room */
     let roomId: string;
 
     if (qrData?.useRequestId && qrData?.requestId && qrData?.useRequestId === true) {
@@ -109,11 +112,14 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
          * if found update the conversation
          * else save the query data and create the conversation
          */
-        const msgObj: any = conversationData(roomId, { message: data.message, messageType: data.messageType }, qrData.senderId, data.senderName);
-        // console.log('new message data', msgObj, ": Db res", await updateConversation(msgObj));
-
-        socket.to(roomId).emit('receive-new-message', { message: data.message, messageType: data.messageType, error: false });
-        // socket.emit('send-new-message-done', { message: 'message sent', data: data, error: false });
+        /** @var messageRoomId - This is used to determine who is recieving the message */
+        let messageRoomId = data?.messageId ? data?.messageId : roomId;
+        const msgObj: any = conversationData(messageRoomId, { message: data.message, messageType: data.messageType }, qrData.senderId, data.senderName);
+        await updateConversation(msgObj);
+        // console.log('new message data', msgObj, ": Db res", );
+        
+        socket.to(messageRoomId).emit('receive-new-message', { message: data.message, messageType: data.messageType, messageId: messageRoomId, error: false });
+        socket.emit('send-new-message-done', { data: [], message: 'message sent', error: false });
         
     });
 

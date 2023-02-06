@@ -20,6 +20,9 @@ import service from './controller/client-controller/routes.service';
 import staff from './controller/client-controller/routes.staff';
 import { chatController } from './controller/create-chat';
 import { DBConnection } from './config/connection';
+import { NotificationController } from './controller/notification';
+import { pushNotification } from './routes/pushNotification';
+import pushNotificationWrapper from './controller/pushNotificationWrapper';
 
 var app = express();
 app.use(express.json({ limit: "50mb" }));
@@ -51,6 +54,16 @@ chatSocket.on("connection", (socket: any) => {
 	 chatController(chatSocket, socket);
 });
 
+
+/**
+ * Handles all user socket events
+ */
+const notificationSocket = io.of("/notification");
+
+notificationSocket.on("connection", (socket: any) => {
+	 NotificationController(socket);
+});
+
 /**_________________________________ Middleware ________________________________ */
 // header preflight configuration to prevent cors error
 app.use(
@@ -71,6 +84,7 @@ app.use("/", staff);
 app.use("/staff", staff);
 app.use("/service", service);
 app.use("/resident", resident);
+app.use("notification/:id", pushNotificationWrapper(notificationSocket, pushNotification))
 
 
 // app.listen(PORT || 3000, () => {

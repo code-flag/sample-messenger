@@ -9,9 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateConversation = exports.getConversation = exports.createConversation = exports.getAdminChats = exports.getChats = exports.getChatsBYRoomId = exports.createChat = exports.getUserChatList = void 0;
+exports.updateNotification = exports.getNotifications = exports.createNotification = exports.updateConversation = exports.getConversation = exports.createConversation = exports.getAdminChats = exports.getChats = exports.getChatsBYRoomId = exports.createChat = exports.getUserChatList = void 0;
 const chat_schema_1 = require("../schemas/chat.schema");
 const chat_schema_2 = require("../schemas/chat.schema");
+const notification_1 = require("../schemas/notification");
 const getUserChatList = (userId, roomId, messageObj) => __awaiter(void 0, void 0, void 0, function* () {
     const chatInfo = yield chat_schema_1.chatRooms.findOne({ $or: [{ userOneId: userId }, { userTwoId: userId }] });
     if (chatInfo) {
@@ -60,3 +61,24 @@ const updateConversation = (data) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.updateConversation = updateConversation;
+const createNotification = (NotificationData) => __awaiter(void 0, void 0, void 0, function* () {
+    const NotificationInfo = yield notification_1.notification.create(NotificationData);
+    return NotificationInfo;
+});
+exports.createNotification = createNotification;
+const getNotifications = (Id) => __awaiter(void 0, void 0, void 0, function* () {
+    const notificationData = yield notification_1.notification.findOne({ requestId: Id });
+    return notificationData;
+});
+exports.getNotifications = getNotifications;
+const updateNotification = (requestId, notificationId) => __awaiter(void 0, void 0, void 0, function* () {
+    const notificationRes = yield notification_1.notification.findOne({ requestId: requestId, notificationId: notificationId });
+    if (notificationRes) {
+        // update the conversation
+        return yield notification_1.notification.updateOne({ requestId: requestId, notificationId: notificationId }, { $set: { isRead: true } }, { $new: true });
+    }
+    else {
+        return false;
+    }
+});
+exports.updateNotification = updateNotification;
