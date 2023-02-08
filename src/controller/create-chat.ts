@@ -56,6 +56,9 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
     /** user connection Id */
     const connectionId = socket.id;
 
+    /** @var userOneId - this is expected to be admin id */
+    const userOneId = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.receiverId : qrData.senderId;
+
     /** this used to create a unique conversation room */
     let roomId: string;
 
@@ -66,13 +69,13 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
         roomId = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.receiverId + "_" + qrData.senderId : qrData.senderId + "_" + qrData.receiverId;
    
     }
-    // this is used to determine wether to fetch a single chat or all chat if its not a user 
+    /** this is used to determine wether to fetch a single chat or all chat if its not a user */
     const fetchType: boolean =  qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? false : true;
     
     /** holds conversation data or db response */
     let convData: any;
     if (fetchType) {
-        convData = await getAdminChats(qrData.userOneId);
+        convData = await getAdminChats(userOneId);
     }
     else {
         convData = qrData?.useRequestId === true ? await getChats(qrData.requestId) : await getChatsBYRoomId(roomId);
