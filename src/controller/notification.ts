@@ -30,9 +30,9 @@ export const NotificationController = async (socket: Socket) => {
     const qrData = JSON.parse(JSON.stringify(handshake.query));
 
     const connectionId = socket.id;
-    let roomId: string = qrData.requestId;
+    let roomId: string = qrData.estateId;
 
-    const responseData = await getNotifications(qrData.requestId);
+    const responseData = await getNotifications(qrData.estateId);
     
     // console.log('Notification',responseData );
     if (responseData ) {
@@ -53,7 +53,7 @@ export const NotificationController = async (socket: Socket) => {
     /** event to recieve sent message */
     socket.on("new-notification", async (data) => {
       
-        const notificationObj: any = notificationData({ message: data.message, title: data.title, data:  data.data }, qrData.requestId);
+        const notificationObj: any = notificationData({ message: data.message, title: data.title, data:  data.data }, qrData.estateId);
         await createNotification(notificationObj);
         // console.log('new message data', notificationObj, ": Db res", await updateConversation(notificationObj));
 
@@ -63,7 +63,7 @@ export const NotificationController = async (socket: Socket) => {
     });
 
     socket.on("get-notification", async () => {
-    const responseData = await getNotifications(qrData.requestId);
+    const responseData = await getNotifications(qrData.estateId);
     // console.log('Notification',responseData );
     if (responseData ) {
         socket.emit('get-notification-done', { data: responseData, message: "Notification successfully retrieved", error: false});
@@ -72,7 +72,7 @@ export const NotificationController = async (socket: Socket) => {
 
   socket.on("acknowledge-notification", async (notificationId) => {
    if (notificationId) {
-    const responseData = await updateNotification(qrData.requestId, notificationId);
+    const responseData = await updateNotification(qrData.estateId, notificationId);
     // console.log('Notification',responseData );
     if (responseData ) {
         socket.emit('acknowledge-notification-done', { data: responseData, message: "Notification successfully retrieved", error: false});
