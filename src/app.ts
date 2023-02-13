@@ -1,6 +1,7 @@
 // const { engine } = require("express-handlebars");
 // const express = require("express");
 import express from 'express';
+import { Router } from "express";
 const path = require('path');
 // const expressHbs = require("express-handlebars");
 import * as expressHbs from 'express-handlebars';
@@ -21,11 +22,12 @@ import staff from './controller/client-controller/routes.staff';
 import { chatController } from './controller/create-chat';
 import { DBConnection } from './config/connection';
 import { NotificationController } from './controller/notification';
-import { pushNotification } from './routes/pushNotification';
+import {pushNotification} from './routes/pushNotification';
 import pushNotificationWrapper from './controller/pushNotificationWrapper';
 
 var app = express();
 app.use(express.json({ limit: "50mb" }));
+
 
 // instatiating template engine
 app.engine(".hbs", expressHbs.engine({defaultLayout: 'main', extname: ".hbs" }));
@@ -84,7 +86,7 @@ app.use("/", staff);
 app.use("/staff", staff);
 app.use("/service", service);
 app.use("/resident", resident);
-app.use("notification/:id", pushNotificationWrapper(notificationSocket, pushNotification))
+app.post("/gate-pass-notification/:id", pushNotificationWrapper(notificationSocket, pushNotification));
 
 
 // app.listen(PORT || 3000, () => {

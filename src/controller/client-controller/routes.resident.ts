@@ -31,7 +31,7 @@ const isValidColor = (color: string) => {
 
 router.get("/", (req: any, res: any) => {
     // const data = await initData();
-    console.log('resident query', req.query.meta);
+    console.log('resident query', req.query.requestId, );
 
     req.query.appColor = isHexColor(req.query.appColor) ? req.query.appColor : '000';
     req.query.appBgColor = isHexColor(req.query.appBgColor) ? req.query.appBgColor : '33ccff';
@@ -54,7 +54,7 @@ router.get("/", (req: any, res: any) => {
         meta: req.query.meta
     }
     res.render('resident-chat', { appInitData: appInitData, appName: req.query.messengerName,
-        appColor: req.query.appColor , appBgColor: req.query.appBgColor });
+        appColor: req.query.appColor , appBgColor: req.query.appBgColor, requestId: req.query.requestId, useRequestId: req.query.useRequestId, senderId: req.query.senderId, receiverId: req.query.receiverId });
 });
 
 router.get("/:userType", (req: any, res: any) => {

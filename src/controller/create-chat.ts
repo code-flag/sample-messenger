@@ -59,7 +59,9 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
     /** @var userOneId - this is expected to be admin id */
     const userOneId = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.receiverId : qrData.senderId;
 
-    /** this used to create a unique conversation room */
+    /** this used to create a unique conversation room 
+     * - id useRequestId is true -- then requestId is used as the room id and if false the users id is used instead
+    */
     let roomId: string;
 
     if (qrData?.useRequestId && qrData?.requestId && qrData?.useRequestId === true) {
@@ -67,27 +69,35 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
     }
     else {
         roomId = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.receiverId + "_" + qrData.senderId : qrData.senderId + "_" + qrData.receiverId;
-   
+
     }
-    /** this is used to determine wether to fetch a single chat or all chat if its not a user */
-    const fetchType: boolean =  qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? false : true;
-    
+    /** this is used to determine wether to fetch a single chat or all chats for admin */
+    const fetchType: boolean = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? false : true;
+
     /** holds conversation data or db response */
     let convData: any;
     if (fetchType) {
+        console.log("userOneId", userOneId);
+
         convData = await getAdminChats(userOneId);
     }
     else {
+        console.log('qrData.requestId', qrData.requestId, qrData?.useRequestId, roomId);
+
         convData = qrData?.useRequestId === true ? await getChats(qrData.requestId) : await getChatsBYRoomId(roomId);
     }
 
     // console.log('Old conversation', convData);
+    /** check if conversation data is available */
     if (!convData) {
         const msgObj: any = conversationData(roomId, { message: 'chat initiated', messageType: 'text' }, qrData.senderId, "");
         // console.log('conversation data', msgObj);
         const conv: any = await createConversation(msgObj);
         if (conv) {
             await createChat(chatData(roomId, qrData, conv._id));
+            /** add user to a specific room */
+            socket.join(roomId);
+            console.log("resident added back room: ", socket.rooms);
         }
         else {
             // console.log('conv', conv);
@@ -95,6 +105,16 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
         }
     }
     else {
+        // reconnect user back to the previous rooms
+        if (Array.isArray(convData) && convData.length > 0) {
+            convData.forEach(element => {
+                socket.join(element.roomId);
+            });
+            console.log("resident added back room: ", socket.rooms);
+        } else if (!Array.isArray(convData)) {
+            socket.join(convData.roomId);
+            console.log("resident added back room: ", socket.rooms);
+        }
         //    socket.emit('old-messages', {chats: convData});
         socket.emit('connected', { data: { connectionId: socket.id, chats: convData } });
     }
@@ -103,10 +123,6 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
         // socket.emit('ride-request-available', setMessage({}, 'resident: you are now connected', 'r-1', true));
         // console.log(qrData.senderName + " disconnecting");
     });
-
-    /** add user to a specific room */
-    socket.join(roomId);
-    console.log("resident added back room: ", socket.rooms);
 
     /** event to recieve sent message */
     socket.on("send-new-message", async (data) => {
@@ -120,10 +136,10 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
         const msgObj: any = conversationData(messageRoomId, { message: data.message, messageType: data.messageType }, qrData.senderId, data.senderName);
         await updateConversation(msgObj);
         // console.log('new message data', msgObj, ": Db res", );
-        
+
         socket.to(messageRoomId).emit('receive-new-message', { message: data.message, messageType: data.messageType, messageId: messageRoomId, error: false });
         socket.emit('send-new-message-done', { data: [], message: 'message sent', error: false });
-        
+
     });
 
     socket.on("get-messages", async (data) => {

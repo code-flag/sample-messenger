@@ -8,7 +8,7 @@ const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 router.get("/", (req, res) => {
     // const data = await initData();
-    res.render('staff-chat', { vendorsData: '' });
+    res.render('staff-chat', { requestId: req.query.requestId, useRequestId: req.query.useRequestId, senderId: req.query.senderId, receiverId: req.query.receiverId });
 });
 router.get("/user/:userType", (req, res) => {
     // const data = await initData();

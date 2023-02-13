@@ -35,8 +35,8 @@ const NotificationController = (socket) => __awaiter(void 0, void 0, void 0, fun
     let handshake = socket.handshake;
     const qrData = JSON.parse(JSON.stringify(handshake.query));
     const connectionId = socket.id;
-    let roomId = qrData.requestId;
-    const responseData = yield (0, database_query_1.getNotifications)(qrData.requestId);
+    let roomId = qrData.estateId;
+    const responseData = yield (0, database_query_1.getNotifications)(qrData.estateId);
     // console.log('Notification',responseData );
     if (responseData) {
         socket.emit('connected', { data: responseData, connectionId: connectionId, message: "Notification is available", error: false });
@@ -53,14 +53,14 @@ const NotificationController = (socket) => __awaiter(void 0, void 0, void 0, fun
     console.log("resident added back room: ", socket.rooms);
     /** event to recieve sent message */
     socket.on("new-notification", (data) => __awaiter(void 0, void 0, void 0, function* () {
-        const notificationObj = notificationData({ message: data.message, title: data.title, data: data.data }, qrData.requestId);
+        const notificationObj = notificationData({ message: data.message, title: data.title, data: data.data }, qrData.estateId);
         yield (0, database_query_1.createNotification)(notificationObj);
         // console.log('new message data', notificationObj, ": Db res", await updateConversation(notificationObj));
         socket.to(roomId).emit('subscribe-new-notification', { message: "Notification available", data: notificationObj, error: false });
         socket.emit('new-notification-done', { data: [], message: 'Notification sent', error: false });
     }));
     socket.on("get-notification", () => __awaiter(void 0, void 0, void 0, function* () {
-        const responseData = yield (0, database_query_1.getNotifications)(qrData.requestId);
+        const responseData = yield (0, database_query_1.getNotifications)(qrData.estateId);
         // console.log('Notification',responseData );
         if (responseData) {
             socket.emit('get-notification-done', { data: responseData, message: "Notification successfully retrieved", error: false });
@@ -68,7 +68,7 @@ const NotificationController = (socket) => __awaiter(void 0, void 0, void 0, fun
     }));
     socket.on("acknowledge-notification", (notificationId) => __awaiter(void 0, void 0, void 0, function* () {
         if (notificationId) {
-            const responseData = yield (0, database_query_1.updateNotification)(qrData.requestId, notificationId);
+            const responseData = yield (0, database_query_1.updateNotification)(qrData.estateId, notificationId);
             // console.log('Notification',responseData );
             if (responseData) {
                 socket.emit('acknowledge-notification-done', { data: responseData, message: "Notification successfully retrieved", error: false });

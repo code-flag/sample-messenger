@@ -103,6 +103,17 @@
 
 <script>
 
+  var appName = "{{appName}}";
+				var appColor = "{{appColor}}";
+        var requestId = "{{requestId}}", 
+        useRequestId = {{useRequestId}}, 
+        senderId = "{{senderId}}", 
+        receiverId = "{{receiverId}}" ;
+				console.log('appInitData', appName, appColor,  
+        {requestId: requestId, useRequestId: useRequestId,
+         senderId: senderId, receiverId: receiverId });
+
+
   var staffConn = '';
 
 $("#send-msg").click(function(){
@@ -122,20 +133,23 @@ $("#send-msg").click(function(){
   function driverInit(userId, userType, userName = 'John Mark'){
     console.log('socket init')
       // Initiates a Driver socket
-      staffConn = io(`https://cpaat-messenger.onrender.com/chat`, {
+      {{!-- https://cpaat-messenger.onrender.com --}}
+      staffConn = io(`localhost:3200/chat`, {
         transports: ["websocket", "polling"],
         query: { 
            productName: "Gate-house",
             productId: "87bhrwigds78w",
             accessId: 'dkls96s5rsiu792wh0',
-            senderId: "4fsd6s3sgs645s1",
+            senderId: senderId,
             senderName: "Mark Mosh",
             senderAvatar: 'avatar',
             senderRole: "staff",
-            receiverId: 'sg34g545efs2m', 
+            receiverId: receiverId, 
             receiverName: 'Jame Bond', 
             receiverAvatar: "avatar",
             receiverRole: "user",
+            requestId: requestId,
+            useRequestId: useRequestId
         },
       });
   

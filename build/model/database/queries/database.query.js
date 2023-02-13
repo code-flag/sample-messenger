@@ -36,8 +36,13 @@ const getChats = (requestId) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.getChats = getChats;
 const getAdminChats = (adminId) => __awaiter(void 0, void 0, void 0, function* () {
-    const chatInfo = yield chat_schema_1.chatRooms.findOne({ userOneId: adminId }).populate('conversations');
-    return chatInfo;
+    try {
+        const chatInfo = yield chat_schema_1.chatRooms.findOne({ userOneId: adminId }).populate('conversations');
+        return chatInfo;
+    }
+    catch (error) {
+        console.log(error === null || error === void 0 ? void 0 : error.message);
+    }
 });
 exports.getAdminChats = getAdminChats;
 const createConversation = (conversationData) => __awaiter(void 0, void 0, void 0, function* () {
@@ -75,7 +80,7 @@ const updateNotification = (requestId, notificationId) => __awaiter(void 0, void
     const notificationRes = yield notification_1.notification.findOne({ requestId: requestId, notificationId: notificationId });
     if (notificationRes) {
         // update the conversation
-        return yield notification_1.notification.updateOne({ requestId: requestId, notificationId: notificationId }, { $set: { isRead: true } }, { $new: true });
+        return yield notification_1.notification.findOneAndUpdate({ requestId: requestId, notificationId: notificationId }, { $set: { isRead: true } }, { $new: true });
     }
     else {
         return false;

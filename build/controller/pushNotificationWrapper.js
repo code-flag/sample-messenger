@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (socketNamespace, callBackFunc) => (request, response, next) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("hi");
     try {
         yield callBackFunc(socketNamespace, request, response, next);
     }

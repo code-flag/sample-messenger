@@ -90,7 +90,7 @@ app.use("/", routes_staff_1.default);
 app.use("/staff", routes_staff_1.default);
 app.use("/service", routes_service_1.default);
 app.use("/resident", routes_resident_1.default);
-app.use("notification/:id", (0, pushNotificationWrapper_1.default)(notificationSocket, pushNotification_1.pushNotification));
+app.post("/gate-pass-notification/:id", (0, pushNotificationWrapper_1.default)(notificationSocket, pushNotification_1.pushNotification));
 // app.listen(PORT || 3000, () => {
 //   console.log("server started on port", PORT);
 // });

@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.pushNotification = void 0;
 const unique_id_1 = require("../helper/library/unique-id");
-const database_query_1 = require("../model/database/queries/database.query");
 const notificationData = (notificationData, requestId) => {
     const data = {
         title: notificationData === null || notificationData === void 0 ? void 0 : notificationData.title,
@@ -24,11 +23,13 @@ const notificationData = (notificationData, requestId) => {
     return data;
 };
 const pushNotification = (socket, request, response) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
     const notification = request.body;
-    const id = request.params.id;
+    const id = (_b = (_a = request.params) === null || _a === void 0 ? void 0 : _a.id) !== null && _b !== void 0 ? _b : 12345;
     const notificationObj = notificationData({ message: notification.message, title: notification.title, data: notification.data }, id);
-    const dbResponse = yield (0, database_query_1.createNotification)(notificationObj);
-    if (dbResponse) {
+    console.log("notificationObj", notificationObj);
+    // const dbResponse = await createNotification(notificationObj);
+    if (1) {
         socket.to(id).emit('subscribe-new-notification', { message: "Notification available", data: notificationObj, error: false });
         response.status(200).json({ message: "Notification sent successfully", status: "success" });
     }

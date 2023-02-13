@@ -55,9 +55,16 @@ const conversationData = (roomId, msgData, senderId, senderName) => {
  * @param {*} socket - socket instance
  */
 const chatController = (chatNsp, socket) => __awaiter(void 0, void 0, void 0, function* () {
+    /** this is used to get connection query params */
     let handshake = socket.handshake;
     const qrData = JSON.parse(JSON.stringify(handshake.query));
+    /** user connection Id */
     const connectionId = socket.id;
+    /** @var userOneId - this is expected to be admin id */
+    const userOneId = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.receiverId : qrData.senderId;
+    /** this used to create a unique conversation room
+     * - id useRequestId is true -- then requestId is used as the room id and if false the users id is used instead
+    */
     let roomId;
     if ((qrData === null || qrData === void 0 ? void 0 : qrData.useRequestId) && (qrData === null || qrData === void 0 ? void 0 : qrData.requestId) && (qrData === null || qrData === void 0 ? void 0 : qrData.useRequestId) === true) {
         roomId = qrData.requestId;
@@ -65,23 +72,29 @@ const chatController = (chatNsp, socket) => __awaiter(void 0, void 0, void 0, fu
     else {
         roomId = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.receiverId + "_" + qrData.senderId : qrData.senderId + "_" + qrData.receiverId;
     }
-    // this is used to determine wether to fetch a single chat or all chat if its not a user 
+    /** this is used to determine wether to fetch a single chat or all chats for admin */
     const fetchType = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? false : true;
     /** holds conversation data or db response */
     let convData;
     if (fetchType) {
-        convData = yield (0, database_query_1.getAdminChats)(qrData.userOneId);
+        console.log("userOneId", userOneId);
+        convData = yield (0, database_query_1.getAdminChats)(userOneId);
     }
     else {
+        console.log('qrData.requestId', qrData.requestId, qrData === null || qrData === void 0 ? void 0 : qrData.useRequestId, roomId);
         convData = (qrData === null || qrData === void 0 ? void 0 : qrData.useRequestId) === true ? yield (0, database_query_1.getChats)(qrData.requestId) : yield (0, database_query_1.getChatsBYRoomId)(roomId);
     }
     // console.log('Old conversation', convData);
+    /** check if conversation data is available */
     if (!convData) {
         const msgObj = conversationData(roomId, { message: 'chat initiated', messageType: 'text' }, qrData.senderId, "");
         // console.log('conversation data', msgObj);
         const conv = yield (0, database_query_1.createConversation)(msgObj);
         if (conv) {
             yield (0, database_query_1.createChat)(chatData(roomId, qrData, conv._id));
+            /** add user to a specific room */
+            socket.join(roomId);
+            console.log("resident added back room: ", socket.rooms);
         }
         else {
             // console.log('conv', conv);
@@ -89,6 +102,17 @@ const chatController = (chatNsp, socket) => __awaiter(void 0, void 0, void 0, fu
         }
     }
     else {
+        // reconnect user back to the previous rooms
+        if (Array.isArray(convData) && convData.length > 0) {
+            convData.forEach(element => {
+                socket.join(element.roomId);
+            });
+            console.log("resident added back room: ", socket.rooms);
+        }
+        else if (!Array.isArray(convData)) {
+            socket.join(convData.roomId);
+            console.log("resident added back room: ", socket.rooms);
+        }
         //    socket.emit('old-messages', {chats: convData});
         socket.emit('connected', { data: { connectionId: socket.id, chats: convData } });
     }
@@ -96,9 +120,6 @@ const chatController = (chatNsp, socket) => __awaiter(void 0, void 0, void 0, fu
         // socket.emit('ride-request-available', setMessage({}, 'resident: you are now connected', 'r-1', true));
         // console.log(qrData.senderName + " disconnecting");
     });
-    /** add user to a specific room */
-    socket.join(roomId);
-    console.log("resident added back room: ", socket.rooms);
     /** event to recieve sent message */
     socket.on("send-new-message", (data) => __awaiter(void 0, void 0, void 0, function* () {
         // console.log('send-new-message', data);
@@ -106,10 +127,12 @@ const chatController = (chatNsp, socket) => __awaiter(void 0, void 0, void 0, fu
          * if found update the conversation
          * else save the query data and create the conversation
          */
-        const msgObj = conversationData(roomId, { message: data.message, messageType: data.messageType }, qrData.senderId, data.senderName);
+        /** @var messageRoomId - This is used to determine who is recieving the message */
+        let messageRoomId = (data === null || data === void 0 ? void 0 : data.messageId) ? data === null || data === void 0 ? void 0 : data.messageId : roomId;
+        const msgObj = conversationData(messageRoomId, { message: data.message, messageType: data.messageType }, qrData.senderId, data.senderName);
         yield (0, database_query_1.updateConversation)(msgObj);
         // console.log('new message data', msgObj, ": Db res", );
-        socket.to(roomId).emit('receive-new-message', { message: data.message, messageType: data.messageType, error: false });
+        socket.to(messageRoomId).emit('receive-new-message', { message: data.message, messageType: data.messageType, messageId: messageRoomId, error: false });
         socket.emit('send-new-message-done', { data: [], message: 'message sent', error: false });
     }));
     socket.on("get-messages", (data) => __awaiter(void 0, void 0, void 0, function* () {

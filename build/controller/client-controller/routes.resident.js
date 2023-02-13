@@ -32,7 +32,7 @@ const isValidColor = (color) => {
 };
 router.get("/", (req, res) => {
     // const data = await initData();
-    console.log('resident query', req.query.meta);
+    console.log('resident query', req.query.requestId);
     req.query.appColor = isHexColor(req.query.appColor) ? req.query.appColor : '000';
     req.query.appBgColor = isHexColor(req.query.appBgColor) ? req.query.appBgColor : '33ccff';
     req.query.messengerName = req.query.messengerName && req.query.messengerName != '' ? req.query.messengerName : 'CPAAT Messenger';
@@ -53,7 +53,7 @@ router.get("/", (req, res) => {
         meta: req.query.meta
     };
     res.render('resident-chat', { appInitData: appInitData, appName: req.query.messengerName,
-        appColor: req.query.appColor, appBgColor: req.query.appBgColor });
+        appColor: req.query.appColor, appBgColor: req.query.appBgColor, requestId: req.query.requestId, useRequestId: req.query.useRequestId, senderId: req.query.senderId, receiverId: req.query.receiverId });
 });
 router.get("/:userType", (req, res) => {
     // const data = await initData();

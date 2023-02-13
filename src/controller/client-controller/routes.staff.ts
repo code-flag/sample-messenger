@@ -4,7 +4,7 @@ const router = express.Router();
 
 router.get("/",(req:any, res: any) => {
     // const data = await initData();
-    res.render('staff-chat', {vendorsData: ''});
+    res.render('staff-chat',  {requestId: req.query.requestId, useRequestId: req.query.useRequestId, senderId: req.query.senderId, receiverId: req.query.receiverId });
 });
 
 router.get("/user/:userType",(req:any, res: any) => {

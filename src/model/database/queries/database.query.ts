@@ -29,8 +29,13 @@ export const getChats = async (requestId: string) => {
 }
 
 export const getAdminChats = async (adminId: string) => {
-    const chatInfo: any = await chatRooms.findOne({userOneId: adminId}).populate('conversations');
+    try {
+        const chatInfo: any = await chatRooms.findOne({userOneId: adminId}).populate('conversations');
     return chatInfo;
+    } catch (error: any) {
+        console.log(error?.message);
+        
+    }
 }
 
 export const createConversation = async (conversationData:any) => {
@@ -70,7 +75,7 @@ export const updateNotification = async (requestId: string, notificationId: stri
     const notificationRes: any = await notification.findOne({requestId:requestId, notificationId: notificationId});
     if (notificationRes) {
         // update the conversation
-        return await notification.updateOne(
+        return await notification.findOneAndUpdate(
             {requestId: requestId, notificationId: notificationId},
                 { $set: { isRead: true} },
                 {$new: true}
