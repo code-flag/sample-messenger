@@ -27,7 +27,7 @@ const pushNotification = (socket, request, response) => __awaiter(void 0, void 0
     const notification = request.body;
     const id = (_a = request.params) === null || _a === void 0 ? void 0 : _a.id;
     const notificationObj = notificationData({ message: notification.message, title: notification.title, data: notification.data }, id);
-    console.log("notificationObj", notificationObj);
+    // console.log("notificationObj", notificationObj);
     // const dbResponse = await createNotification(notificationObj);
     if (id) {
         socket.to(id).emit('subscribe-new-notification', { message: "Notification available", data: notificationObj, error: false });

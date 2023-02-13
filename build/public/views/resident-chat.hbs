@@ -144,8 +144,7 @@
 
   const showNotification = () => {
     newNotification.subscribe((data) => {
-      console.log("subscription data", data);
-      alert(data);
+      console.log("Observable subscription data", data);
     })
   }
 
@@ -185,7 +184,7 @@ $("#send-msg").click(function(){
     console.log('socket init')
       // Initiates a Driver socket
       // localhost:3200/chat
-      residentConn = io(`localhost:3200/chat`, {
+      residentConn = io(`https://cpaat-messenger.onrender.com/chat`, {
         transports: ["websocket", "polling"],
         query: { 
            productName: "Gate-house",
@@ -225,8 +224,8 @@ $("#send-msg").click(function(){
     };
 
     function gatePassNotification() {
-      // localhost:3200/chat
-      gatePassConn = io(`localhost:3200/notification`, {
+      // https://cpaat-messenger.onrender.com/chat
+      gatePassConn = io(`https://cpaat-messenger.onrender.com/notification`, {
         transports: ["websocket"],
         query: { 
          estateId: "6380ecaa0120d50f9df141be"

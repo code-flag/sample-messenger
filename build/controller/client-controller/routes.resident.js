@@ -31,6 +31,7 @@ const isValidColor = (color) => {
     return /^#[0-9A-F]{6}$/i.test(color);
 };
 router.get("/", (req, res) => {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w;
     // const data = await initData();
     console.log('resident query', req.query.requestId);
     req.query.appColor = isHexColor(req.query.appColor) ? req.query.appColor : '000';
@@ -46,14 +47,16 @@ router.get("/", (req, res) => {
 
      */
     const appInitData = {
-        appName: req.query.messengerName,
-        userType: req.query.userType,
-        receiverId: req.query.receiverId,
-        chatPage: req.query.chatPage,
-        meta: req.query.meta
+        appName: (_b = (_a = req.query) === null || _a === void 0 ? void 0 : _a.messengerName) !== null && _b !== void 0 ? _b : "",
+        userType: (_d = (_c = req.query) === null || _c === void 0 ? void 0 : _c.userType) !== null && _d !== void 0 ? _d : "user",
+        receiverId: (_f = (_e = req.query) === null || _e === void 0 ? void 0 : _e.receiverId) !== null && _f !== void 0 ? _f : "id_not_available",
+        chatPage: (_h = (_g = req.query) === null || _g === void 0 ? void 0 : _g.chatPage) !== null && _h !== void 0 ? _h : 1,
+        meta: (_j = req.query) === null || _j === void 0 ? void 0 : _j.meta
     };
-    res.render('resident-chat', { appInitData: appInitData, appName: req.query.messengerName,
-        appColor: req.query.appColor, appBgColor: req.query.appBgColor, requestId: req.query.requestId, useRequestId: req.query.useRequestId, senderId: req.query.senderId, receiverId: req.query.receiverId });
+    res.render('resident-chat', { appInitData: appInitData, appName: (_l = (_k = req.query) === null || _k === void 0 ? void 0 : _k.messengerName) !== null && _l !== void 0 ? _l : "",
+        appColor: (_m = req.query) === null || _m === void 0 ? void 0 : _m.appColor, appBgColor: (_o = req.query) === null || _o === void 0 ? void 0 : _o.appBgColor,
+        requestId: (_q = (_p = req.query) === null || _p === void 0 ? void 0 : _p.requestId) !== null && _q !== void 0 ? _q : 203, useRequestId: (_s = (_r = req.query) === null || _r === void 0 ? void 0 : _r.useRequestId) !== null && _s !== void 0 ? _s : true,
+        senderId: (_u = (_t = req.query) === null || _t === void 0 ? void 0 : _t.senderId) !== null && _u !== void 0 ? _u : 101, receiverId: (_w = (_v = req.query) === null || _v === void 0 ? void 0 : _v.receiverId) !== null && _w !== void 0 ? _w : 201 });
 });
 router.get("/:userType", (req, res) => {
     // const data = await initData();

@@ -47,14 +47,16 @@ router.get("/", (req: any, res: any) => {
 
      */
     const appInitData = {
-        appName: req.query.messengerName,
-        userType: req.query.userType,
-        receiverId: req.query.receiverId,
-        chatPage: req.query.chatPage,
-        meta: req.query.meta
+        appName: req.query?.messengerName ?? "",
+        userType: req.query?.userType ?? "user",
+        receiverId: req.query?.receiverId ?? "id_not_available",
+        chatPage: req.query?.chatPage ?? 1,
+        meta: req.query?.meta
     }
-    res.render('resident-chat', { appInitData: appInitData, appName: req.query.messengerName,
-        appColor: req.query.appColor , appBgColor: req.query.appBgColor, requestId: req.query.requestId, useRequestId: req.query.useRequestId, senderId: req.query.senderId, receiverId: req.query.receiverId });
+    res.render('resident-chat', { appInitData: appInitData, appName: req.query?.messengerName ?? "",
+        appColor: req.query?.appColor , appBgColor: req.query?.appBgColor, 
+        requestId: req.query?.requestId ?? 203, useRequestId: req.query?.useRequestId ?? true, 
+        senderId: req.query?.senderId ?? 101, receiverId: req.query?.receiverId ?? 201});
 });
 
 router.get("/:userType", (req: any, res: any) => {
