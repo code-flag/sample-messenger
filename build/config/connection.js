@@ -4,6 +4,7 @@ exports.DBConnection = void 0;
 const mongoose = require("mongoose");
 require('dotenv/config');
 const url = process.env.DB_CONNECTION_URL;
+mongoose.set('strictQuery', true);
 const DBConnection = () => {
     mongoose.connect(url, {
         useNewUrlParser: true,

@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 require('dotenv/config');
 
 const url: string | undefined = process.env.DB_CONNECTION_URL;
+mongoose.set('strictQuery', true);
 
 export const DBConnection = () => {
   mongoose.connect(

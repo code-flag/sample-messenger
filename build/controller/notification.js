@@ -36,9 +36,9 @@ const NotificationController = (socket) => __awaiter(void 0, void 0, void 0, fun
     const qrData = JSON.parse(JSON.stringify(handshake.query));
     const connectionId = socket.id;
     let roomId = qrData.estateId;
-    const responseData = yield (0, database_query_1.getNotifications)(qrData.estateId);
+    const responseData = 1254; //await getNotifications(qrData.estateId);
     // console.log('Notification',responseData );
-    if (responseData) {
+    if (responseData || 1) {
         socket.emit('connected', { data: responseData, connectionId: connectionId, message: "Notification is available", error: false });
     }
     else {
@@ -50,7 +50,6 @@ const NotificationController = (socket) => __awaiter(void 0, void 0, void 0, fun
     });
     /** add user to a specific room */
     socket.join(roomId);
-    console.log("resident added back room: ", socket.rooms);
     /** event to recieve sent message */
     socket.on("new-notification", (data) => __awaiter(void 0, void 0, void 0, function* () {
         const notificationObj = notificationData({ message: data.message, title: data.title, data: data.data }, qrData.estateId);

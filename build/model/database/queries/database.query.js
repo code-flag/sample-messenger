@@ -71,9 +71,14 @@ const createNotification = (NotificationData) => __awaiter(void 0, void 0, void 
     return NotificationInfo;
 });
 exports.createNotification = createNotification;
-const getNotifications = (Id) => __awaiter(void 0, void 0, void 0, function* () {
-    const notificationData = yield notification_1.notification.findOne({ requestId: Id });
-    return notificationData;
+const getNotifications = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    if (id) {
+        const notificationData = yield notification_1.notification.findOne({ requestId: id });
+        return notificationData;
+    }
+    else {
+        return 0;
+    }
 });
 exports.getNotifications = getNotifications;
 const updateNotification = (requestId, notificationId) => __awaiter(void 0, void 0, void 0, function* () {

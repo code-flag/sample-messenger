@@ -17,12 +17,12 @@ const notificationData = (notificationData: any, requestId: string) => {
 
 export const pushNotification = async (socket:any, request: any, response: any) => {
     const notification = request.body;
-    const id = request.params?.id ?? 12345;
+    const id = request.params?.id;
     const notificationObj: any = notificationData({ message: notification.message, title: notification.title, data:  notification.data }, id);
-    console.log("notificationObj", notificationObj);
+    // console.log("notificationObj", notificationObj);
     
     // const dbResponse = await createNotification(notificationObj);
-    if(1){
+    if(id){
         socket.to(id).emit('subscribe-new-notification', { message: "Notification available", data: notificationObj, error: false });
         response.status(200).json({message: "Notification sent successfully", status: "success"});
     }

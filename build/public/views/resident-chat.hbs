@@ -140,6 +140,21 @@
 
 <script>
   const { Observable, from, Subject } = rxjs;
+  let newNotification = new Subject();
+
+  const showNotification = () => {
+    newNotification.subscribe((data) => {
+      console.log("subscription data", data);
+      alert(data);
+    })
+  }
+
+
+  newNotification.next("init observables");
+  gatePassNotification();
+  showNotification();
+
+
 var residentConn = '';
 				var appName = "{{appName}}";
 				var appColor = "{{appColor}}";
@@ -208,6 +223,33 @@ $("#send-msg").click(function(){
       listenToAllMsgEvents(residentConn);
     
     };
+
+    function gatePassNotification() {
+      // localhost:3200/chat
+      gatePassConn = io(`localhost:3200/notification`, {
+        transports: ["websocket"],
+        query: { 
+         estateId: "6380ecaa0120d50f9df141be"
+        },
+      });
+  
+      // Driver Events
+      gatePassConn.on("connected", (socketData) => {
+        const { data } = socketData;
+        let connectionId = data && data.connectionId ? data.connectionId : null;
+        console.log('socket connected', connectionId);
+    
+      });
+  
+      gatePassConn.on("error", (data) => {
+        // Expose error for test checking
+      });
+
+      gatePassConn.on("subscribe-new-notification", (data) => {
+        newNotification.next(data);
+        console.log("subscribe-new-notification-done", data);
+      });
+    }
 
   var messages = document.getElementById('messages');
   var form = document.getElementById('form');

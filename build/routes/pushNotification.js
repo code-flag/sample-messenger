@@ -23,13 +23,13 @@ const notificationData = (notificationData, requestId) => {
     return data;
 };
 const pushNotification = (socket, request, response) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+    var _a;
     const notification = request.body;
-    const id = (_b = (_a = request.params) === null || _a === void 0 ? void 0 : _a.id) !== null && _b !== void 0 ? _b : 12345;
+    const id = (_a = request.params) === null || _a === void 0 ? void 0 : _a.id;
     const notificationObj = notificationData({ message: notification.message, title: notification.title, data: notification.data }, id);
     console.log("notificationObj", notificationObj);
     // const dbResponse = await createNotification(notificationObj);
-    if (1) {
+    if (id) {
         socket.to(id).emit('subscribe-new-notification', { message: "Notification available", data: notificationObj, error: false });
         response.status(200).json({ message: "Notification sent successfully", status: "success" });
     }

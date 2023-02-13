@@ -66,9 +66,13 @@ export const createNotification = async (NotificationData: any) => {
     const NotificationInfo = await notification.create(NotificationData);
     return NotificationInfo;
 }
-export const getNotifications = async (Id: string) => {
-    const notificationData: any = await notification.findOne({requestId: Id});
+export const getNotifications = async (id: string) => {
+    if (id) {
+        const notificationData: any = await notification.findOne({requestId: id});
     return notificationData;
+    } else {
+        return 0;
+    }
 }
 
 export const updateNotification = async (requestId: string, notificationId: string) => {

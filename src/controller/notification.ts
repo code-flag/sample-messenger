@@ -32,10 +32,10 @@ export const NotificationController = async (socket: Socket) => {
     const connectionId = socket.id;
     let roomId: string = qrData.estateId;
 
-    const responseData = await getNotifications(qrData.estateId);
+    const responseData = 1254 //await getNotifications(qrData.estateId);
     
     // console.log('Notification',responseData );
-    if (responseData ) {
+    if (responseData || 1) {
         socket.emit('connected', { data: responseData, connectionId: connectionId,  message: "Notification is available", error: false});
     }else {
         socket.emit('connected', { data: [], connectionId: connectionId, message: "Notification is available", error: false});
@@ -48,7 +48,6 @@ export const NotificationController = async (socket: Socket) => {
 
     /** add user to a specific room */
     socket.join(roomId);
-    console.log("resident added back room: ", socket.rooms);
 
     /** event to recieve sent message */
     socket.on("new-notification", async (data) => {
