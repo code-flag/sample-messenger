@@ -225,8 +225,8 @@ $("#send-msg").click(function(){
 
     function gatePassNotification() {
       // https://cpaat-messenger.onrender.com/chat
-      gatePassConn = io(`https://cpaat-messenger.onrender.com/notification`, {
-        transports: ["websocket"],
+      gatePassConn = io(`localhost:3400/notification`, {
+        transports: ["websocket", "polling"],
         query: { 
          estateId: "6380ecaa0120d50f9df141be"
         },
@@ -234,8 +234,7 @@ $("#send-msg").click(function(){
   
       // Driver Events
       gatePassConn.on("connected", (socketData) => {
-        const { data } = socketData;
-        let connectionId = data && data.connectionId ? data.connectionId : null;
+        const { data, connectionId } = socketData;
         console.log('socket connected', connectionId);
     
       });

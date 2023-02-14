@@ -43,9 +43,6 @@ const routes_service_1 = __importDefault(require("./controller/client-controller
 const routes_staff_1 = __importDefault(require("./controller/client-controller/routes.staff"));
 const create_chat_1 = require("./controller/create-chat");
 const connection_1 = require("./config/connection");
-const notification_1 = require("./controller/notification");
-const pushNotification_1 = require("./routes/pushNotification");
-const pushNotificationWrapper_1 = __importDefault(require("./controller/pushNotificationWrapper"));
 var app = (0, express_1.default)();
 app.use(express_1.default.json({ limit: "50mb" }));
 // instatiating template engine
@@ -66,13 +63,6 @@ const chatSocket = io.of("/chat");
 chatSocket.on("connection", (socket) => {
     (0, create_chat_1.chatController)(chatSocket, socket);
 });
-/**
- * Handles all user socket events
- */
-const notificationSocket = io.of("/notification");
-notificationSocket.on("connection", (socket) => {
-    (0, notification_1.NotificationController)(socket);
-});
 /**_________________________________ Middleware ________________________________ */
 // header preflight configuration to prevent cors error
 app.use((0, cors_1.default)({
@@ -90,7 +80,6 @@ app.use("/", routes_staff_1.default);
 app.use("/staff", routes_staff_1.default);
 app.use("/service", routes_service_1.default);
 app.use("/resident", routes_resident_1.default);
-app.post("/gate-pass-notification/:id", (0, pushNotificationWrapper_1.default)(notificationSocket, pushNotification_1.pushNotification));
 // app.listen(PORT || 3000, () => {
 //   console.log("server started on port", PORT);
 // });
