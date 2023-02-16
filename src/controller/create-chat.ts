@@ -1,7 +1,7 @@
 /**
  * This file contain all the methods needs to create a chat for a user
  */
-import { createChat, createConversation, getAdminChats, getChats, getChatsBYRoomId, getConversation, updateConversation } from "../model/database/queries/database.query";
+import { createChat, createConversation, getAdminChats, getChats, getChatsByRoomId, getConversation, updateConversation } from "../model/database/queries/database.query";
 import { Namespace, Socket } from "socket.io";
 
 
@@ -54,13 +54,14 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
     let handshake = socket.handshake;
     const qrData = JSON.parse(JSON.stringify(handshake.query));
     /** user connection Id */
-    const connectionId = socket.id;
+    const connectionId: string = socket.id;
 
     /** @var userOneId - this is expected to be admin id */
-    const userOneId = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.receiverId : qrData.senderId;
+    const userOneId: string = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.receiverId : qrData.senderId;
 
     /** this used to create a unique conversation room 
-     * - id useRequestId is true -- then requestId is used as the room id and if false the users id is used instead
+     * - if useRequestId is true -- then requestId is used as the room id and 
+     * - if false the users id is used instead
     */
     let roomId: string;
 
@@ -80,11 +81,14 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
         console.log("userOneId", userOneId);
 
         convData = await getAdminChats(userOneId);
+        console.log("admin conversations data", convData);
     }
     else {
         console.log('qrData.requestId', qrData.requestId, qrData?.useRequestId, roomId);
 
-        convData = qrData?.useRequestId === true ? await getChats(qrData.requestId) : await getChatsBYRoomId(roomId);
+        convData = qrData?.useRequestId === true ? await getChats(roomId) : await getChatsByRoomId(roomId);
+        console.log("user conversation : ", convData);
+        
     }
 
     // console.log('Old conversation', convData);
@@ -110,10 +114,10 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
             convData.forEach(element => {
                 socket.join(element.roomId);
             });
-            console.log("resident added back room: ", socket.rooms);
+            console.log("Array :: Admin added back room: ", socket.rooms);
         } else if (!Array.isArray(convData)) {
             socket.join(convData.roomId);
-            console.log("resident added back room: ", socket.rooms);
+            console.log("User added back room: ", socket.rooms);
         }
         //    socket.emit('old-messages', {chats: convData});
         socket.emit('connected', { data: { connectionId: socket.id, chats: convData } });

@@ -18,19 +18,35 @@ export const createChat = async (chatData: any) => {
     const chatInfo = await chatRooms.create(chatData);
     return chatInfo;
 }
-export const getChatsBYRoomId = async (roomId: string) => {
+
+/**
+ * This method get chats by room Id which could be either requestId or users id joined
+ * @param roomId 
+ * @returns 
+ */
+export const getChatsByRoomId = async (roomId: string) => {
     const chatInfo: any = await chatRooms.findOne({roomId: roomId}).populate('conversations');
     return chatInfo;
 }
 
+/**
+ * This method gets chats info by request Id
+ * @param requestId 
+ * @returns 
+ */
 export const getChats = async (requestId: string) => {
     const chatInfo: any = await chatRooms.findOne({requestId: requestId}).populate('conversations');
     return chatInfo;
 }
 
+/**
+ * This method return array of chats for admin
+ * @param adminId 
+ * @returns 
+ */
 export const getAdminChats = async (adminId: string) => {
     try {
-        const chatInfo: any = await chatRooms.findOne({userOneId: adminId}).populate('conversations');
+        const chatInfo: any = await chatRooms.find({userOneId: adminId}).populate('conversations');
     return chatInfo;
     } catch (error: any) {
         console.log(error?.message);
@@ -54,7 +70,8 @@ export const updateConversation = async (data:any) => {
         // update the conversation
         return await conversations.updateOne(
                 { roomId: data.roomId},
-                { $addToSet: { conversation: data.conversation[0] } }
+                { $addToSet: { conversation: data.conversation[0] } },
+                {new : true}
               );
     }
     else {

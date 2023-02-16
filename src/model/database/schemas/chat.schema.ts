@@ -27,7 +27,7 @@ const ConversationsSchema = new Schema({
     conversation: [
       {
       message: {type: String, required: true},
-      messageType: {type: String, default: 'text'},
+      messageType: {type: String, enum: ['text', 'image', 'audio', 'video'], default: 'text'},
       senderId: {type: String, required: true},
       senderName: {type: String, default: ""},
       timeCreated: {type: String, required: true}

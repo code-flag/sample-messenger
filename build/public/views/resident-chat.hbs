@@ -225,7 +225,7 @@ $("#send-msg").click(function(){
 
     function gatePassNotification() {
       // https://cpaat-messenger.onrender.com/chat
-      gatePassConn = io(`localhost:3400/notification`, {
+      gatePassConn = io(`https://gate-house-webhook.onrender.com/notification`, {
         transports: ["websocket", "polling"],
         query: { 
          estateId: "6380ecaa0120d50f9df141be"
