@@ -40,7 +40,7 @@ const host: string = process.env.HOST || "http://localhost";
 
 /** ________________________Database connection_________________________ */
 DBConnection();
-
+ 
 
 /**
  * Handles all user socket events
