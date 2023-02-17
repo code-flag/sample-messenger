@@ -16,6 +16,8 @@ const ChatRoomSchema = new Schema({
     productId: {type: String,default: null}, // gate-house access key
     accessId: {type: String,default: null}, // estate id
     productName: {type: String,default: null}, // gate-house
+    requestId: {type: String,default: null},
+    useRequestId: {type: String, default: false},
     conversations: {type: Schema.Types.ObjectId, required: true, ref: "Conversations"},
     isActive: {type: Boolean, required: false, default: true}
 });

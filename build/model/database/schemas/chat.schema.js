@@ -20,6 +20,8 @@ const ChatRoomSchema = new Schema({
     productId: { type: String, default: null },
     accessId: { type: String, default: null },
     productName: { type: String, default: null },
+    requestId: { type: String, default: null },
+    useRequestId: { type: String, default: false },
     conversations: { type: Schema.Types.ObjectId, required: true, ref: "Conversations" },
     isActive: { type: Boolean, required: false, default: true }
 });

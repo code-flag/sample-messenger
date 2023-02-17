@@ -19,6 +19,8 @@ const chatData = (roomID: string, qrData: any, conversationId: string) => {
         productId: qrData.productId, // gate-house access key
         accessId: qrData.accessId, // estate id
         productName: qrData.productName, // gate-house
+        requestId: qrData.requestId, 
+        useRequestId: qrData.useRequestId, 
         conversations: conversationId,
         isActive: true
     }
@@ -51,7 +53,7 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
     const qrData = JSON.parse(JSON.stringify(handshake.query));
 
     const connectionId = socket.id;
-    const roomId: string = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? qrData.receiverId + "_" + qrData.senderId : qrData.senderId + "_" + qrData.receiverId;
+    const roomId: string = qrData.requestId;
 
     const convData: any = await getChats(roomId);
     // console.log('Old conversation', convData);

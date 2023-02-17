@@ -43,10 +43,6 @@ const updateConversation = (data) => __awaiter(void 0, void 0, void 0, function*
     const conversation = yield chat_schema_2.conversations.findOne({ roomId: data.roomId });
     if (conversation) {
         // update the conversation
-        // conversations.findOneAndUpdate(
-        //     { roomId: roomId},
-        //     { $set: messageObj },
-        //     { new: true });
         return yield chat_schema_2.conversations.updateOne({ roomId: data.roomId }, { $addToSet: { conversation: data.conversation[0] } });
     }
     else {
