@@ -36,13 +36,14 @@ const chatData = (roomID, qrData, conversationId) => {
     // console.log('User connected successfully: Handshake data', data);
     return data;
 };
-const conversationData = (roomId, msgData, senderId) => {
+const conversationData = (roomId, msgData, senderId, senderName) => {
     const data = {
         roomId: roomId,
         conversation: [{
                 message: msgData.message,
                 messageType: msgData.messageType,
                 senderId: senderId,
+                senderName: senderName,
                 timeCreated: new Date().toISOString()
             }]
     };
@@ -61,7 +62,7 @@ const chatController = (chatNsp, socket) => __awaiter(void 0, void 0, void 0, fu
     const convData = yield (0, database_query_1.getChats)(roomId);
     // console.log('Old conversation', convData);
     if (!convData) {
-        const msgObj = conversationData(roomId, { message: 'chat initiated', messageType: 'text' }, qrData.senderId);
+        const msgObj = conversationData(roomId, { message: 'chat initiated', messageType: 'text' }, qrData.senderId, qrData.senderName);
         // console.log('conversation data', msgObj);
         const conv = yield (0, database_query_1.createConversation)(msgObj);
         if (conv) {
@@ -90,9 +91,10 @@ const chatController = (chatNsp, socket) => __awaiter(void 0, void 0, void 0, fu
          * if found update the conversation
          * else save the query data and create the conversation
          */
-        const msgObj = conversationData(roomId, { message: data.message, messageType: data.messageType }, qrData.senderId);
-        // console.log('new message data', msgObj, ": Db res", await updateConversation(msgObj));
-        socket.to(roomId).emit('receive-new-message', { message: data.message, messageType: data.messageType, error: false });
+        const msgObj = conversationData(roomId, { message: data.message, messageType: data.messageType }, qrData.senderId, qrData.senderName);
+        // console.log('new message data', msgObj, ": Db res", );
+        yield (0, database_query_1.updateConversation)(msgObj);
+        socket.to(roomId).emit('receive-new-message', { senderId: qrData.senderId, senderName: qrData.senderName, messageId: roomId, message: data.message, messageType: data.messageType, error: false });
         // socket.emit('send-new-message-done', { message: 'message sent', data: data, error: false });
     }));
     socket.on("get-messages", (data) => __awaiter(void 0, void 0, void 0, function* () {

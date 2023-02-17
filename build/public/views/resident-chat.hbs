@@ -166,7 +166,7 @@ $("#send-msg").click(function(){
     console.log('socket init')
       // Initiates a Driver socket
       // localhost:3200/chat
-      residentConn = io(`https://cpaat-messenger.onrender.com/chat`, {
+      residentConn = io(`localhost:3200/chat`, {
         transports: ["websocket", "polling"],
         query: { 
            productName: "Gate-house",
@@ -180,6 +180,8 @@ $("#send-msg").click(function(){
             receiverName: "Mark Mosh",
             receiverAvatar: "avatar",
             receiverRole: "staff",
+            requestId: "req001",
+            useRequestId: true
         },
       });
   

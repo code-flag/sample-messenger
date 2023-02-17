@@ -28,13 +28,14 @@ const chatData = (roomID: string, qrData: any, conversationId: string) => {
     return data;
 }
 
-const conversationData = (roomId: string, msgData: any, senderId: any) => {
+const conversationData = (roomId: string, msgData: any, senderId: any, senderName: any) => {
     const data = {
         roomId: roomId,
         conversation: [{
             message: msgData.message,
             messageType: msgData.messageType,
             senderId: senderId,
+            senderName: senderName,
             timeCreated: new Date().toISOString()
         }]
     }
@@ -58,7 +59,7 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
     const convData: any = await getChats(roomId);
     // console.log('Old conversation', convData);
     if (!convData) {
-        const msgObj: any = conversationData(roomId, { message: 'chat initiated', messageType: 'text' }, qrData.senderId);
+        const msgObj: any = conversationData(roomId, { message: 'chat initiated', messageType: 'text' }, qrData.senderId, qrData.senderName);
         // console.log('conversation data', msgObj);
         const conv: any = await createConversation(msgObj);
         if (conv) {
@@ -90,10 +91,11 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
          * if found update the conversation
          * else save the query data and create the conversation
          */
-        const msgObj: any = conversationData(roomId, { message: data.message, messageType: data.messageType }, qrData.senderId);
-        // console.log('new message data', msgObj, ": Db res", await updateConversation(msgObj));
+        const msgObj: any = conversationData(roomId, { message: data.message, messageType: data.messageType }, qrData.senderId, qrData.senderName);
+        // console.log('new message data', msgObj, ": Db res", );
+        await updateConversation(msgObj);
 
-        socket.to(roomId).emit('receive-new-message', { message: data.message, messageType: data.messageType, error: false });
+        socket.to(roomId).emit('receive-new-message', { senderId: qrData.senderId, senderName: qrData.senderName, messageId: roomId,  message: data.message, messageType: data.messageType, error: false });
         // socket.emit('send-new-message-done', { message: 'message sent', data: data, error: false });
         
     });

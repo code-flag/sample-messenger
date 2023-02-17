@@ -32,6 +32,7 @@ const ConversationsSchema = new Schema({
             message: { type: String, required: true },
             messageType: { type: String, default: 'text' },
             senderId: { type: String, required: true },
+            senderName: { type: String, default: "" },
             timeCreated: { type: String, required: true }
         }
     ]
