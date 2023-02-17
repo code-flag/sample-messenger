@@ -6,7 +6,7 @@ const path = require('path');
 import * as expressHbs from 'express-handlebars';
 import cors from 'cors';
 import dotEnv from 'dotenv';
-dotEnv.config();
+dotEnv.config(); 
 
 // const socketIO = require("socket.io");
 // import {Socket as socketIO} from 'socket.io';
