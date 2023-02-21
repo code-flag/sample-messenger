@@ -54,7 +54,9 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
     const qrData = JSON.parse(JSON.stringify(handshake.query));
 
     const connectionId = socket.id;
-    const roomId: string = qrData.requestId;
+    const rmId = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? `${qrData.receiverId}_${qrData.senderId}` : `${qrData.senderId}_${qrData.receiverId}`;
+        
+    const roomId: string = qrData.useRequestId || qrData.useRequestId === "true"? qrData.requestId : rmId ;
 
     const convData: any = await getChats(roomId);
     // console.log('Old conversation', convData);
