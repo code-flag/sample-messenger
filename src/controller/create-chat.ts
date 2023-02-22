@@ -98,7 +98,7 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
         await updateConversation(msgObj);
 
         socket.to(roomId).emit('receive-new-message', { senderId: qrData.senderId, senderName: qrData.senderName, messageId: roomId,  message: data.message, messageType: data.messageType, error: false });
-        // socket.emit('send-new-message-done', { message: 'message sent', data: data, error: false });
+        socket.emit('send-new-message-done', { message: 'message sent', data: data?.meta ?? [], "timestamp": new Date().toISOString(), error: false });
         
     });
 
