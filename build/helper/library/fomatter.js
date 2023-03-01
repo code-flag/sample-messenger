@@ -3,7 +3,7 @@
  * @author - Francis Olawumi Awe - <awefrancolaz@gmail.com>
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isObjectKey = exports.camelCaseToUnderscore = exports.camelCaseTokebabCase = void 0;
+exports.isObjectKey = exports.camelCaseToSeparateWords = exports.camelCaseToUnderscore = exports.camelCaseTokebabCase = void 0;
 /**
  * This function helps in converting camel case to kebabcase
  * @param {string} str - the string value in camel case to be converted to kebab case
@@ -36,6 +36,22 @@ const camelCaseToUnderscore = (str) => {
         .join("");
 };
 exports.camelCaseToUnderscore = camelCaseToUnderscore;
+/**
+ * This function helps in converting camel case to spaced words
+ * @param {string} str - the string value in camel case to be converted to spaced words
+ * @returns {string} - the formatted spaced words value
+ */
+const camelCaseToSeparateWords = (str) => {
+    return str
+        .split("")
+        .map((letter, idx) => {
+        return letter.toUpperCase() === letter
+            ? `${idx !== 0 ? " " : ""}${letter === null || letter === void 0 ? void 0 : letter.toLowerCase()}`
+            : letter;
+    })
+        .join("");
+};
+exports.camelCaseToSeparateWords = camelCaseToSeparateWords;
 const isObjectKey = (obj, key) => {
     if (typeof obj == "object") {
         // check for payee key

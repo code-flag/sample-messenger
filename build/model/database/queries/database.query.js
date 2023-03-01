@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateConversation = exports.getConversation = exports.createConversation = exports.getChats = exports.createChat = exports.getUserChatList = void 0;
+exports.updateConversation = exports.getConversation = exports.createConversation = exports.getStaffChats = exports.getChats = exports.createChat = exports.getUserChatList = void 0;
 const chat_schema_1 = require("../schemas/chat.schema");
 const chat_schema_2 = require("../schemas/chat.schema");
 const getUserChatList = (userId, roomId, messageObj) => __awaiter(void 0, void 0, void 0, function* () {
@@ -29,6 +29,11 @@ const getChats = (roomId) => __awaiter(void 0, void 0, void 0, function* () {
     return chatInfo;
 });
 exports.getChats = getChats;
+const getStaffChats = (roomId_1, roomId_2) => __awaiter(void 0, void 0, void 0, function* () {
+    const chatInfo = yield chat_schema_1.chatRooms.findOne({ roomId: { $in: [roomId_1, roomId_2] } }).populate('conversations');
+    return chatInfo;
+});
+exports.getStaffChats = getStaffChats;
 const createConversation = (conversationData) => __awaiter(void 0, void 0, void 0, function* () {
     const chatInfo = yield chat_schema_2.conversations.create(conversationData);
     return chatInfo;

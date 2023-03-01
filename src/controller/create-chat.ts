@@ -1,7 +1,7 @@
 /**
  * This file contain all the methods needs to create a chat for a user
  */
-import { createChat, createConversation, getChats, getConversation, updateConversation } from "../model/database/queries/database.query";
+import { createChat, createConversation, getChats, getConversation, getStaffChats, updateConversation } from "../model/database/queries/database.query";
 import { Namespace, Socket } from "socket.io";
 
 
@@ -42,6 +42,15 @@ const conversationData = (roomId: string, msgData: any, senderId: any, senderNam
 
     return data;
 }
+/** this method is used to get roomId if both users are staffs */
+const getStaffData = async (userOneId: string, userTwoId: string) => {
+    // get any chat related to this id
+    const roomId_1 = userOneId + "_" + userTwoId ;
+    const roomId_2 = userTwoId + "_" + userOneId ;
+    const staffChat = await getStaffChats(roomId_1, roomId_2);
+    console.log("staffChat : ", staffChat);
+    return staffChat;
+}
 
 /**
  *
@@ -54,11 +63,28 @@ export const chatController = async (chatNsp: Namespace, socket: Socket) => {
     const qrData = JSON.parse(JSON.stringify(handshake.query));
 
     const connectionId = socket.id;
-    const rmId = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? `${qrData.receiverId}_${qrData.senderId}` : `${qrData.senderId}_${qrData.receiverId}`;
+    var rmId: string;
         
-    const roomId: string = qrData.useRequestId || qrData.useRequestId === "true"? qrData.requestId : rmId ;
+    var roomId: string;
 
-    const convData: any = await getChats(roomId);
+    var convData: any;
+    console.log("condition ", qrData.receiverRole == "staff", qrData.senderRole == "staff", qrData.useRequestId, !qrData.useRequestId, typeof qrData.useRequestId);
+    qrData.useRequestId = typeof qrData.useRequestId == "string" && qrData.useRequestId == "false" ? false : true;
+    console.log("typeof qrData.useRequestId: ", typeof qrData.useRequestId);
+    
+    if (!qrData.useRequestId && qrData.receiverRole == "staff" && qrData.senderRole == "staff") {
+       const data = await getStaffData(qrData.senderId, qrData.receiverId);
+       console.log("data: ", data);
+       roomId = data.roomId;
+       convData = data;
+       
+    } else {
+        rmId = qrData.senderRole == 'visitor' || qrData.senderRole == 'user' ? `${qrData.receiverId}_${qrData.senderId}` : `${qrData.senderId}_${qrData.receiverId}`;
+        
+        roomId = qrData.useRequestId || qrData.useRequestId === "true"? qrData.requestId : rmId ;
+    
+        convData = await getChats(roomId);
+    }
     // console.log('Old conversation', convData);
     if (!convData) {
         const msgObj: any = conversationData(roomId, { message: 'chat initiated', messageType: 'text' }, qrData.senderId, qrData.senderName);

@@ -35,6 +35,22 @@ export const camelCaseToUnderscore = (str: string) => {
     .join("");
 };
 
+/**
+ * This function helps in converting camel case to spaced words
+ * @param {string} str - the string value in camel case to be converted to spaced words
+ * @returns {string} - the formatted spaced words value
+ */
+export const camelCaseToSeparateWords = (str: string) => {
+  return str
+    .split("")
+    .map((letter, idx) => {
+      return letter.toUpperCase() === letter
+        ? `${idx !== 0 ? " " : ""}${letter?.toLowerCase()}`
+        : letter;
+    })
+    .join("");
+};
+
 export const isObjectKey = (obj: any, key: any) => {
   if (typeof obj == "object") {
     // check for payee key

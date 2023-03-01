@@ -22,6 +22,11 @@ export const getChats = async (roomId: string) => {
     return chatInfo;
 }
 
+export const getStaffChats = async (roomId_1: string, roomId_2: string) => {
+    const chatInfo: any = await chatRooms.findOne({roomId: {$in: [roomId_1, roomId_2]}}).populate('conversations');
+    return chatInfo;
+}
+
 export const createConversation = async (conversationData:any) => {
     const chatInfo = await conversations.create(conversationData);
     return chatInfo;

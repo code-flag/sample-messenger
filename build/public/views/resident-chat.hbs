@@ -165,8 +165,9 @@ $("#send-msg").click(function(){
   function driverInit(userId, userType, userName = 'John Mark'){
     console.log('socket init')
       // Initiates a Driver socket
+      //https://cpaat-messenger.onrender.com/chat
       // localhost:3200/chat
-      residentConn = io(`https://cpaat-messenger.onrender.com/chat`, {
+      residentConn = io(`localhost:3200/chat`, {
         transports: ["websocket", "polling"],
         query: { 
            productName: "Gate-house",
@@ -175,13 +176,13 @@ $("#send-msg").click(function(){
             senderId: 'sg34g545efs2m',
             senderName: 'Jame Bond',
             senderAvatar: 'avatar',
-            senderRole: "user",
+            senderRole: "staff",
             receiverId: "4fsd6s3sgs645s1",
             receiverName: "Isaac Mosh",
             receiverAvatar: "avatar",
             receiverRole: "staff",
             requestId: "req001",
-            useRequestId: true
+            useRequestId: false
         },
       });
   
